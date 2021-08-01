@@ -16,7 +16,7 @@ from PySide2.QtWidgets import QApplication, QMainWindow
 from toolship import Toolship
 from toolship.gui.utils import qt_threadsafe_connect, qt_threadsafe_method
 from toolship.plugins import IsQuitCommand, IsRunnable, IsClipboardValueProducer
-from toolship.gui.commandpalette import CommandPaletteModel
+from toolship.gui.commandpalette import CommandPalette
 
 log = logging.getLogger(__name__)
 
@@ -26,15 +26,18 @@ class ToolshipGui(QMainWindow):
   border_radius: int = 5
   padding: int = 10
   text_color: str = 'white'
-  background_color: str = '#3af'
+  background_color: str = '#334'
 
-  def __init__(self, toolship: Toolship, minimize: bool) -> None:
+  def __init__(self, toolship: Toolship, minimize: bool, frameless: bool = True) -> None:
     super().__init__()
     qt_threadsafe_connect(self)
     self._toolship = toolship
     self._minimize = minimize
-    self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Tool)
-    self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+    self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+    if frameless:
+      self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+      self.setWindowFlag(QtCore.Qt.Tool)
+      self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
     self.setupUi()
 
   def setupUi(self):
@@ -42,18 +45,20 @@ class ToolshipGui(QMainWindow):
     self.frame.setStyleSheet(f"""
       * {{
         color: {self.text_color};
-        border-radius: {self.border_radius}px;
         font: bold large "Segoe UI";
         font-size: 16px;
+      }}
+      #searchQueryInput, #searchResults, #searchResults #container {{
+        border-radius: {self.border_radius}px;
       }}
       #searchQueryInput, #searchResults {{
         padding: {self.padding}px;
         width: 600px;
         background-color: {self.background_color};
       }}
-      #searchResults *:handle, #searchResults *:vertical {{
-        background: #555;
-        width: 3px;
+      #searchResults QScrollBar {{
+        background: rgba(0, 0, 0, 0.2);
+        width: 4px;
       }}
     """)
     self.setCentralWidget(self.frame)
@@ -67,17 +72,11 @@ class ToolshipGui(QMainWindow):
     self.searchQueryInput.textChanged.connect(self._searchQueryInput_textChanged)
     layout.addWidget(self.searchQueryInput)
 
-    self.searchResults = CommandPaletteModel(self._toolship)
-    self.searchResultsView = QtWidgets.QListView()
-    self.searchResultsView.setObjectName("searchResults")
-    layout.addWidget(self.searchResultsView)
-    self.searchResultsView.setMinimumHeight(400)
-    self.searchResultsView.hide()
-    self.searchResultsView.setModel(self.searchResults)
-    self.searchResults.dataChanged.connect(lambda:
-      self.searchResultsView.scrollTo(self.searchResults.index(self.searchResults.currentRow())))
-
-    self.searchQueryInput.setText('yk')  # DEBUG
+    self.searchResults = CommandPalette(self._toolship)
+    self.searchResults.setObjectName("searchResults")
+    self.searchResults.setMinimumHeight(400)
+    self.searchResults.selectedEvent.connect(lambda a, b: self._dispatchCommand())
+    layout.addWidget(self.searchResults)
 
   def keyPressEvent(self, event: QKeyEvent) -> None:
     if event.key() == QtCore.Qt.Key_Escape:
@@ -107,7 +106,7 @@ class ToolshipGui(QMainWindow):
     self.searchQueryInput.setFocus(QtCore.Qt.ActiveWindowFocusReason)
 
   def _dispatchCommand(self) -> None:
-    result = Optional(self.searchResults.current()).map(lambda r: r[1]).get()
+    result = Optional(self.searchResults.current()).map(lambda r: r[1]).or_else(None)
     try:
       if isinstance(result, IsQuitCommand):
         self.close(True)
@@ -128,16 +127,15 @@ class ToolshipGui(QMainWindow):
 
   def _searchQueryInput_textChanged(self, query: str) -> None:
     self.searchResults.update(query)
-    self.searchResultsView.setVisible(self.searchResults._results != [])
 
   def _onFocusChanged(self, current: t.Optional[QtWidgets.QWidget], next: t.Optional[QtWidgets.QWidget]) -> None:
     if next is None:
       self.close()
 
   @staticmethod
-  def mainloop(toolship: Toolship, minimize: bool, hotkey: t.Optional[str] = None) -> None:
+  def mainloop(toolship: Toolship, minimize: bool, frameless: bool, hotkey: t.Optional[str] = None) -> None:
     app = QApplication()
-    wnd = ToolshipGui(toolship, minimize)
+    wnd = ToolshipGui(toolship, minimize, frameless)
     wnd.show()
     app.focusChanged.connect(wnd._onFocusChanged)
 

@@ -4,10 +4,13 @@ import logging
 import sys
 import threading
 import types
+import typing as t
 
 from PySide2 import QtCore
 
 log = logging.getLogger(__name__)
+T = t.TypeVar('T')
+U = t.TypeVar('U')
 
 
 def qt_threadsafe_method(method: types.FunctionType) -> types.FunctionType:
@@ -39,3 +42,23 @@ def qt_threadsafe_connect(obj) -> None:
     value = getattr(obj, key)
     if hasattr(value, '__qt_signal__'):
       getattr(obj, value.__qt_signal__).connect(value)
+
+
+def extend_or_trim(
+  target: t.List[T],
+  reference: t.List[U],
+  factory: t.Callable[[int, U], T],
+  update: t.Callable[[int, U ,T], None],
+  delete: t.Optional[t.Callable[[int, T], None]] = None
+) -> None:
+
+  for idx, val in enumerate(reference):
+    if idx >= len(target):
+      target.append(factory(idx, val))
+    update(idx, val, target[idx])
+
+  if delete:
+    for idx in range(len(reference), len(target)):
+      delete(idx, target.pop())
+  else:
+    target[:] = target[:len(reference)]
