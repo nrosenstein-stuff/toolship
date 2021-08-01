@@ -1,0 +1,10 @@
+name: toolship
+version: 0.0.0
+author: Niklas Rosenstein <rosensteinniklas@gmail.com>
+description: Package description here.
+requirements:
+- python ^3.5
+- PySide2 ^5.15.2
+- yubikey-manager ^4.0.5
+- nr.optional ^0.1.1
+- global-hotkeys ^0.0.4
