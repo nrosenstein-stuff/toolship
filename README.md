@@ -1,5 +1,7 @@
 # toolship
 
+Toolship is a tiny extensible Qt-based command console.
+
 
 ## Windows YubiKey Setup
 
