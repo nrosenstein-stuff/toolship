@@ -91,6 +91,7 @@ class ToolshipGui(QMainWindow):
 
   @qt_threadsafe_method
   def close(self, force: bool = False) -> None:
+    self._toolship.on_unload()
     if not self._minimize or force:
       super().close()
       sys.exit()
@@ -100,9 +101,10 @@ class ToolshipGui(QMainWindow):
   @qt_threadsafe_method
   def show(self) -> None:
     super().show()
+    self._toolship.on_load()
+    self.searchQueryInput.setText('')
     self.activateWindow()
     self.raise_()
-    self.searchQueryInput.setText('')
     self.searchQueryInput.setFocus(QtCore.Qt.ActiveWindowFocusReason)
 
   def _dispatchCommand(self) -> None:

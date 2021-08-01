@@ -18,6 +18,20 @@ class Toolship:
   def add_plugin(self, plugin_id: str, plugin: Plugin) -> None:
     self._plugins[plugin_id] = plugin
 
+  def on_load(self) -> None:
+    for plugin_id, plugin in self._plugins.items():
+      try:
+        plugin.on_load()
+      except:
+        log.exception('Unhandled error in Plugin.on_load: %s', plugin_id)
+
+  def on_unload(self) -> None:
+    for plugin_id, plugin in self._plugins.items():
+      try:
+        plugin.on_unload()
+      except:
+        log.exception('Unhandled error in Plugin.on_load: %s', plugin_id)
+
   def get_commands(self, query: str) -> t.List[t.Tuple[str, Result]]:
     commands: t.List[t.Tuple[str, Result]] = []
     for plugin_id, plugin in self._plugins.items():

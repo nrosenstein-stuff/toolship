@@ -11,13 +11,14 @@ from toolship.plugins import Result
 
 class CommandPaletteItem(QtWidgets.QWidget):
   clickedEvent = QtCore.Signal()
+  _plugin_id: str
+  _result: Result
 
   def __init__(self, parent: t.Any = None) -> None:
     super().__init__(parent)
     self._layout = QtWidgets.QVBoxLayout(self)
     self._layout.setAlignment(QtCore.Qt.AlignTop)
     self.setObjectName("root")
-    self._result: t.Optional[Result]
     self._active = False
     self._name = QtWidgets.QLabel('')
     self._name.setObjectName("name")
@@ -40,14 +41,15 @@ class CommandPaletteItem(QtWidgets.QWidget):
     """)
 
   def setActive(self, active: bool) -> None:
-    self.setResult(self._result, active)
+    self.setResult(self._plugin_id, self._result, active)
 
-  def setResult(self, result: Result, active: bool) -> 'CommandPaletteItem':
+  def setResult(self, plugin_id: str, result: Result, active: bool) -> 'CommandPaletteItem':
+    self._plugin_id = plugin_id
     self._result = result
     self._active = active
-    self._name.setText(result.name)
-    self._description.setText(result.description)
-    self._description.setVisible(bool(active and result.description))
+    self._name.setText(f'{result.name} <sub>{plugin_id}</sub>')
+    self._description.setText(result.description or result.error or '')
+    self._description.setVisible(bool(active and (result.description or result.error)))
     self._update_style()
     return self
 
@@ -128,7 +130,7 @@ class CommandPalette(QtWidgets.QScrollArea):
       self._items,
       self._results,
       _factory,
-      lambda idx, t, w: w.setResult(t[1], idx == self._current_row),
+      lambda idx, t, w: w.setResult(t[0], t[1], idx == self._current_row),
       lambda idx, w: (self._layout.removeWidget(w), w.setParent(None))
     )
 
