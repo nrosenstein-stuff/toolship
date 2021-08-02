@@ -6,7 +6,6 @@ import sys
 import threading
 import typing as t
 
-from global_hotkeys import register_hotkeys, start_checking_hotkeys
 from nr.optional import Optional
 from PySide2 import QtCore
 from PySide2 import QtWidgets
@@ -17,6 +16,7 @@ from toolship import Toolship
 from toolship.gui.utils import qt_threadsafe_connect, qt_threadsafe_method
 from toolship.plugins import IsQuitCommand, IsRunnable, IsClipboardValueProducer
 from toolship.gui.commandpalette import CommandPalette
+from toolship.utils.hotkeys import register_hotkeys, start_checking_hotkeys
 
 log = logging.getLogger(__name__)
 
