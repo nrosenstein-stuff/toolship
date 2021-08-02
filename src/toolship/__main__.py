@@ -17,10 +17,11 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('-k', '--keep-open', action='store_true')
   parser.add_argument('-f', '--frameless', action='store_true')
-  parser.add_argument('-H', '--hotkey', default='control+alt+space')
+  parser.add_argument('-H', '--hotkey', default='ctrl+alt+space')
   args = parser.parse_args()
   ToolshipGui.mainloop(ship, args.keep_open, args.frameless, args.hotkey)
 
 
 if __name__ == '__main__':
   main()
+ 

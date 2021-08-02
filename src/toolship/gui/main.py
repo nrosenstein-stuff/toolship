@@ -3,7 +3,6 @@ import logging
 import re
 import signal
 import sys
-import threading
 import typing as t
 
 from nr.optional import Optional
@@ -16,7 +15,7 @@ from toolship import Toolship
 from toolship.gui.utils import qt_threadsafe_connect, qt_threadsafe_method
 from toolship.plugins import IsQuitCommand, IsRunnable, IsClipboardValueProducer
 from toolship.gui.commandpalette import CommandPalette
-from toolship.utils.hotkeys import register_hotkeys, start_checking_hotkeys
+from toolship.utils.hotkeys import KeyboardListener
 
 log = logging.getLogger(__name__)
 
@@ -144,8 +143,9 @@ class ToolshipGui(QMainWindow):
     signal.signal(signal.SIGINT, lambda *a: wnd.close(True))
 
     if hotkey:
-      keystroke = re.split(r'[\+\- ,]', hotkey)
-      register_hotkeys([(keystroke, None, wnd.show)])
-      start_checking_hotkeys()
+      kb_listener = KeyboardListener()
+      kb_listener.register(hotkey, wnd.show)
+      kb_listener.start()
+      print('started hotkey listener')
 
     app.exec_()

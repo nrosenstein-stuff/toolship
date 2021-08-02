@@ -7,4 +7,4 @@ requirements:
 - PySide2 ^5.15.2
 - yubikey-manager ^4.0.5
 - nr.optional ^0.1.1
-- global-hotkeys ^0.0.4
+- pynput ^1.7.3
