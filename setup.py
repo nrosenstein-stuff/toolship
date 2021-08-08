@@ -19,7 +19,6 @@ requirements = [
   'PySide2 >=5.15.2,<6.0.0',
   'yubikey-manager >=4.0.5,<5.0.0',
   'nr.optional >=0.1.1,<1.0.0',
-  'global-hotkeys >=0.0.4,<1.0.0',
   'pynput >=1.7.3,<2.0.0',
 ]
 
