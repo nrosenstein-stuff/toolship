@@ -11,11 +11,11 @@ from PySide2 import QtWidgets
 from PySide2.QtGui import QKeyEvent
 from PySide2.QtWidgets import QApplication, QMainWindow
 
-from toolship import Toolship
-from toolship.gui.utils import qt_threadsafe_connect, qt_threadsafe_method
-from toolship.plugins import IsQuitCommand, IsRunnable, IsClipboardValueProducer
-from toolship.gui.commandpalette import CommandPalette
-from toolship.utils.hotkeys import KeyboardListener
+from toolship.core.hotkeys import HotkeyListener
+from toolship.core.manager import Toolship
+from toolship.core.plugins import IsQuitCommand, IsRunnable, IsClipboardValueProducer
+from .utils import qt_threadsafe_connect, qt_threadsafe_method
+from .commandpalette import CommandPalette
 
 log = logging.getLogger(__name__)
 
@@ -143,8 +143,8 @@ class ToolshipGui(QMainWindow):
     signal.signal(signal.SIGINT, lambda *a: wnd.close(True))
 
     if hotkey:
-      kb_listener = KeyboardListener()
-      kb_listener.register(hotkey, wnd.show)
+      kb_listener = HotkeyListener()
+      kb_listener.add(hotkey, wnd.show)
       kb_listener.start()
       print('started hotkey listener')
 

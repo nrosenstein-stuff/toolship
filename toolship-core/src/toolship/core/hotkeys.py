@@ -1,4 +1,23 @@
 
+"""
+A small wrapper around #pynput to provide an easy-to-use API to listen to keyboard shortcuts
+globally.
+
+Example:
+
+```python
+def _on_hotkey_down():
+  print('Open Toolship!')
+
+from toolship.core.hotkeys import HotkeyListener
+
+listener = HotkeyListener()
+listener.add('ctrl+alt+space', _on_hotkey_down)
+listener.start()
+
+```
+"""
+
 import re
 import logging
 import time
@@ -37,14 +56,23 @@ def keyset_match(reference: _KeySet, current: _KeySet) -> bool:
   return True
 
 
-class KeyboardListener:
+class HotkeyListener:
+  """
+  A smaller wrapper around #pynput to make listening to hotkeys globally easy.
+  """
+
+  #: The maximum number of seconds since the previous key-down event to still consider
+  #: it part of the same keystroke. If you type fast, #pynput may not catch all key-up
+  #: events which would cause the #HotkeyListener to keep zombie keys in the set that
+  #: represents the active keystroke. (at least on Windows 10).
+  consistent_keystroke_threshold: float
 
   def __init__(self, consistent_keystroke_threshold: float = 1.0) -> None:
     self.consistent_keystroke_threshold = consistent_keystroke_threshold
     self._current: _KeySet = set()
     self._last_modified = time.time()
     self._listeners: t.List[t.Tuple[_KeySet, _Callback]] = []
-    self._thread: t.Optional[keyboard.Listener] = None
+    self._listener: t.Optional[keyboard.Listener] = None
 
   def _on_down(self, key: t.Union[Key, KeyCode]) -> None:
     if (time.time() - self._last_modified) > self.consistent_keystroke_threshold:
@@ -56,7 +84,7 @@ class KeyboardListener:
         try:
           callback()
         except Exception:
-          log.exception('Unhandled exception in KeyboardListener callback for keyseq %s', keyseq)
+          log.exception('Unhandled exception in HotkeyListener callback for keyseq %s', keyseq)
 
   def _on_up(self, key: t.Union[Key, KeyCode]) -> None:
     try:
@@ -65,21 +93,50 @@ class KeyboardListener:
       pass
 
   def start(self) -> None:
-    self._thread = keyboard.Listener(on_press=self._on_down, on_release=self._on_up)
-    self._thread.__enter__()
+    """
+    Start the #pynput listener. You should call #stop() before exiting your application.
+    """
+
+    self._listener = keyboard.Listener(on_press=self._on_down, on_release=self._on_up)
+    self._listener.__enter__()
 
   def stop(self) -> None:
-    if self._thread:
-      self._thread.__exit__(None, None, None)
-      self._thread.join()
+    """
+    Stop the #pynput listener and wait for it to complete. This should be called before
+    exiting the application.
+    """
 
-  def register(self, keyseq: t.Union[str, _KeySeq], callback: _Callback) -> None:
+    if self._listener:
+      self._listener.__exit__(None, None, None)
+      self._listener.join()
+
+  def add(self, keyseq: t.Union[str, _KeySeq], callback: _Callback) -> None:
+    """
+    Register a callback to be invoked when a given sequence of keys is active at the same time.
+
+    # Arguments
+    keyseq: A list of #Key#s and #KeyCode#s or a string representing the keystroke. Examples:
+      `ctrl+alt+space`, `cmd+t+0`.
+    callback: The function to call if the global keystroke is matched. The function does not
+      accept arguments and the return value is ignored.
+    """
+
     if isinstance(keyseq, str):
       keyseq = from_string(keyseq)
     self._listeners.append((set(keyseq), callback))
 
 
 def from_string(seq: str) -> _KeySet:
+  """
+  Converts a string representing a key sequence to a set of #Key#s and #KeyCode#s.
+
+  Example:
+
+  ```python
+  >>> from_string('ctrl+alt+space')
+  ```
+  """
+
   result: _KeySet = set()
   parts = re.split(r'[\+\- ,]', seq)
   for part in parts:

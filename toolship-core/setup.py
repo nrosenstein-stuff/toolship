@@ -16,18 +16,15 @@ else:
   long_description = None
 
 requirements = [
-  'PySide2 >=5.15.2,<6.0.0',
-  'yubikey-manager >=4.0.5,<5.0.0',
-  'nr.optional >=0.1.1,<1.0.0',
   'pynput >=1.7.3,<2.0.0',
 ]
 
 setuptools.setup(
-  name = 'toolship',
+  name = 'toolship-core',
   version = '0.0.0',
   author = 'Niklas Rosenstein',
   author_email = 'rosensteinniklas@gmail.com',
-  description = 'Package description here.',
+  description = 'Toolship-Core provides the plugin interface and utilities for extensions of the cross-platform toolship command-console.',
   long_description = long_description,
   long_description_content_type = 'text/markdown',
   url = None,

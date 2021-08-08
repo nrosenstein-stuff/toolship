@@ -2,11 +2,10 @@
 import typing as t
 
 from PySide2 import QtCore, QtGui, QtWidgets
-from toolship import Toolship
-from toolship import plugins
-from toolship.gui.utils import extend_or_trim
+from toolship.core.manager import Toolship
+from .utils import extend_or_trim
 
-from toolship.plugins import Result
+from toolship.core.plugins import Result
 
 
 class CommandPaletteItem(QtWidgets.QWidget):

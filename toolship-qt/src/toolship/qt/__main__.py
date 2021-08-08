@@ -2,13 +2,13 @@
 import argparse
 import logging
 
-from toolship import Toolship
-from toolship.gui import ToolshipGui
-from toolship.plugins.quit import QuitPlugin
-from toolship.plugins.yubikey import YubikeyPlugin
+from toolship.core.manager import Toolship
+from .main import ToolshipGui
+#from toolship.plugins.quit import QuitPlugin
+from toolship.yubikey import YubikeyPlugin
 
 ship = Toolship()
-ship.add_plugin('quit', QuitPlugin())
+#ship.add_plugin('quit', QuitPlugin())
 ship.add_plugin('yk', YubikeyPlugin())
 
 
@@ -24,4 +24,3 @@ def main():
 
 if __name__ == '__main__':
   main()
- 

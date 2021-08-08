@@ -1,0 +1,9 @@
+name: toolship-qt
+version: 0.0.0
+author: Niklas Rosenstein <rosensteinniklas@gmail.com>
+modulename: toolship.qt
+description: Toolship-Qt provides the PySide2 base toolship command-console.
+requirements:
+- nr.optional ^0.1.1
+- PySide2 ^5.15.2
+- python ^3.5

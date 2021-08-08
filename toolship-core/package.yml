@@ -1,0 +1,9 @@
+name: toolship-core
+modulename: toolship.core
+version: 0.0.0
+author: Niklas Rosenstein <rosensteinniklas@gmail.com>
+description: Toolship-Core provides the plugin interface and utilities for extensions of the
+  cross-platform toolship command-console.
+requirements:
+- pynput ^1.7.3
+- python ^3.5

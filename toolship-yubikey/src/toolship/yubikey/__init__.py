@@ -1,4 +1,8 @@
 
+__author__ = 'Niklas Rosenstein <rosensteinniklas@gmail.com>'
+__version__ = '0.0.0'
+
+
 import argparse
 import typing as t
 from yubikit.core.smartcard import SmartCardConnection
@@ -6,7 +10,7 @@ from yubikit.core.smartcard import SmartCardConnection
 from yubikit.oath import Credential, OathSession
 from ykman.device import connect_to_device
 
-from toolship.plugins import ArgparsingPlugin, IsClipboardValueProducer, IsRunnable, Result, PluginMatchError
+from toolship.core.plugins import ArgparsingPlugin, IsClipboardValueProducer, IsRunnable, Result, PluginMatchError
 
 
 class YubikeyPlugin(ArgparsingPlugin):
